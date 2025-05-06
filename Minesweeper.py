@@ -71,7 +71,8 @@ class Tile(tk.Button):
             if Minesweeper.remainingTiles == 0:
                 Minesweeper.win()
         elif self.isClicked:
-            print("該格已經被翻開了！")
+            if self.display == " ": return
+            self.autoclick_tile_with_no_flags()
         elif self.flag:
             print("該格已經被插旗了！")
 
@@ -110,6 +111,22 @@ class Tile(tk.Button):
             if Minesweeper.remainingTiles == 0:
                 Minesweeper.win()
 
+    # 自動點擊周圍沒插旗的地
+    def autoclick_tile_with_no_flags(s):
+        num_of_tiles_with_flags = 0
+        for i in range(s.x - 1, s.x + 2):
+            for j in range(s.y - 1, s.y + 2):
+                if 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
+                    if Minesweeper.tiles[i][j].flag: num_of_tiles_with_flags += 1
+        
+        # 周圍插旗的地不能自己的數字少，不然就return不自動點擊，算是保護玩家
+        if num_of_tiles_with_flags < int(s.display): return
+        for i in range(s.x - 1, s.x + 2):
+            for j in range(s.y - 1, s.y + 2):
+                if 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
+                    if not Minesweeper.tiles[i][j].isClicked and not Minesweeper.tiles[i][j].flag:
+                        Minesweeper.tiles[i][j].clickTile()
+    
     def endState(self):
         #print(f"({self.x},{self.y}) 遊戲結束")
         Tile.canClick = False
@@ -184,10 +201,6 @@ class Minesweeper:
         if not Minesweeper.gameFinished:  # 如果遊戲尚未結束
             Minesweeper.time += 1  # 更新時間
             self.timer_var.set(f"{Minesweeper.time}秒")  # 更新顯示的時間
-            #print("self.timer顯示的字:" + self.timer.cget("text"))  # 我改了這個調試信息
-            #print(self.timer.cget("text")=="") # 還加了這個調試信息
-            #print("self.timer_var的字:", self.timer_var.get()) # 還加了這個調試信息
-            #print(self.timer.cget("textvariable")) # 還加了這個調試信息
             self.root.after(1000, self.updateTimer)  # 每秒更新一次計時器
 
 
