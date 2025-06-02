@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 import numpy as np
-#from Message_window import msgwd
-
 
 
 TILE_BG = "white"
@@ -55,11 +53,11 @@ class Tile(tk.Button):
 
     def clickTile(self):
         if not self.isClicked and not self.flag:
-            #msgwd("Message",f"點擊了({self.x},{self.y})")
+            print(f"點擊了({self.x},{self.y})")
             self.isClicked = True
             self.config(bg="gray", fg="white", text=self.display)
             Minesweeper.remainingTiles -= 1
-            #msgwd("Message",f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
+            print(f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
             if self.isMines:
                 Minesweeper.gameover()
             elif Tile.isFirstClick:
@@ -68,7 +66,7 @@ class Tile(tk.Button):
             elif self.display == " ":
                 self.autoClick(self.x, self.y)
             else:
-                #msgwd("Message","點到數字格")
+                print("點到數字格")
                 pass
             if Minesweeper.remainingTiles == 0:
                 Minesweeper.win()
@@ -76,7 +74,7 @@ class Tile(tk.Button):
             if self.display == " ": return
             self.autoclick_tile_with_no_flags()
         elif self.flag:
-            #msgwd("Message","該格已經被插旗了！")
+            print("該格已經被插旗了！")
             pass
 
     # 處理右鍵點擊事件
@@ -85,18 +83,18 @@ class Tile(tk.Button):
         if not(self.isClicked): # 如果還沒被翻開的格子才能插旗
             if not(self.flag): # 若沒插旗
                 self.config(text="🚩")# 插旗🚩
-                #msgwd("Message","插旗")
+                print("插旗")
                 self.flag = True
             else:
                 self.config(text="")# 取消插旗
-                #msgwd("Message","取消插旗")
+                print("取消插旗")
                 self.flag = False
         else:
-            #msgwd("Message","該格已經被翻開了！")
+            print("該格已經被翻開了！")
             pass
 
     def autoClick(self, x, y):
-        #msgwd("Message","自動翻開周圍的格子")
+        print("自動翻開周圍的格子")
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
                 if not (i == x and j == y) and 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
@@ -105,11 +103,11 @@ class Tile(tk.Button):
     def autoClickTile(self):
         if not self.isClicked:
             self.flag = False
-            #msgwd("Message",f"點擊了({self.x},{self.y})")
+            print(f"點擊了({self.x},{self.y})")
             self.isClicked = True
             self.config(bg="gray", fg="white", text=self.display)
             Minesweeper.remainingTiles -= 1
-            #msgwd("Message",f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
+            print(f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
             if self.display == " ":
                 self.autoClick(self.x, self.y)
             if Minesweeper.remainingTiles == 0:
@@ -132,7 +130,7 @@ class Tile(tk.Button):
                         Minesweeper.tiles[i][j].clickTile()
     
     def endState(self):
-        ##msgwd("Message",f"({self.x},{self.y}) 遊戲結束")
+        print(f"({self.x},{self.y}) 遊戲結束")
         Tile.canClick = False
         if not self.isClicked:
             if self.flag and self.isMines:
@@ -148,10 +146,10 @@ class Tile(tk.Button):
             self.config(fg="white")
 
     def firstClick(self, x, y):
-        #msgwd("Message",f"第一次點擊的格子({self.x},{self.y})")
+        print(f"第一次點擊的格子({self.x},{self.y})")
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
-                #msgwd("Message", i, j)
+                print( i, j)
                 if not (i == self.x and j == self.y) and 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange and\
                         Minesweeper.tiles[i][j].display == " ": # 點擊周圍的空格
                     Minesweeper.tiles[i][j].autoClickTile()
@@ -237,8 +235,8 @@ class Minesweeper:
         messagebox.showinfo("遊戲成功!", f"恭喜你找出所有安全區塊！\n你成功了！\n共耗時{Minesweeper.time}秒")
         for i in range(Minesweeper.Xrange):
             for j in range(Minesweeper.Yrange):
-                t = Minesweeper.tiles[i][j]
-                t.endState() # 設定格子的顏色
+                Minesweeper.tiles[i][j].endState() # 設定格子的顏色
+                
 
 
 def custom():
