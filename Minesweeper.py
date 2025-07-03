@@ -48,12 +48,12 @@ class Land(tk.Button):
         return count
 
     def isMineAt(self, x, y):
-        if 0 <= x < self.game.Xrange and 0 <= y < self.game.Yrange:
+        if 0 <= x < self.game.x_range and 0 <= y < self.game.y_range:
             return self.game.lands[x][y].isMine
         return False
 
     def clickLand(self):
-        if not self.game.canClick:
+        if not self.game.gameFinished: # 如果遊戲還沒結束才能點擊格子
             #print("遊戲已經結束，不能點擊格子！")
             return
         if not self.isClicked and not self.isFlagged: # 還沒被翻開的格子且沒插旗才能點擊
@@ -78,13 +78,15 @@ class Land(tk.Button):
                 self.game.win()
         elif self.isClicked:
             if self.display == " ": return
-            self.autoclick_land_with_no_flags()
+            self.autoClickTileWithNoFlags()
         elif self.isFlagged:
             #print("該格已經被插旗了！")
             pass
 
     # 處理右鍵點擊事件
     def flagLand(self, event):
+        if self.game.gameFinished: # 如果遊戲已經結束，不能插旗
+            return
         # 在這裡處理右鍵點擊事件，插旗的操作
         if not(self.isClicked): # 如果還沒被翻開的格子才能插旗
             if not(self.isFlagged): # 若沒插旗
@@ -103,7 +105,7 @@ class Land(tk.Button):
         #print("自動翻開周圍的格子")
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
-                if not (i == x and j == y) and 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                if not (i == x and j == y) and 0 <= i < self.game.x_range and 0 <= j < self.game.y_range:
                     self.game.lands[i][j].autoClickLand()
 
     def autoClickLand(self):
@@ -120,18 +122,18 @@ class Land(tk.Button):
                 self.game.win()
 
     # 自動點擊周圍沒插旗的地
-    def autoclick_land_with_no_flags(self):
+    def autoClickTileWithNoFlags(self):
         num_of_lands_with_flags = 0
         for i in range(self.x - 1, self.x + 2):
             for j in range(self.y - 1, self.y + 2):
-                if 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                if 0 <= i < self.game.x_range and 0 <= j < self.game.y_range:
                     if self.game.lands[i][j].isFlagged: num_of_lands_with_flags += 1
         
         # 周圍插旗的地不能自己的數字少，不然就return不自動點擊，算是保護玩家
         if num_of_lands_with_flags < int(self.display): return
         for i in range(self.x - 1, self.x + 2):
             for j in range(self.y - 1, self.y + 2):
-                if 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                if 0 <= i < self.game.x_range and 0 <= j < self.game.y_range:
                     if not self.game.lands[i][j].isClicked and not self.game.lands[i][j].isFlagged:
                         self.game.lands[i][j].clickLand()
     
@@ -155,32 +157,31 @@ class Land(tk.Button):
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
                 #print( i, j)
-                if not (i == self.x and j == self.y) and 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange and\
+                if not (i == self.x and j == self.y) and 0 <= i < self.game.x_range and 0 <= j < self.game.y_range and\
                         self.game.lands[i][j].display == " ": # 點擊周圍的空格
                     self.game.lands[i][j].autoClickLand()
 
 
 class Minesweeper:
-    def __init__(self, Xrange, Yrange, minesNumber):
+    def __init__(self, x_range, y_range, minesNumber):
         setting_window.destroy()  # 關閉開始視窗
         self.gameFinished = False
-        self.Xrange = Xrange
-        self.Yrange = Yrange
+        self.x_range = x_range
+        self.y_range = y_range
         self.minesNumber = minesNumber
-        self.canClick = True
         self.isFirstClick = True
-        self.remainingLands = Xrange * Yrange - minesNumber
-        self.lands = np.empty((Xrange, Yrange), dtype=object)  # 建立二維陣列儲存格子物件
+        self.remainingLands = x_range * y_range - minesNumber
+        self.lands = np.empty((x_range, y_range), dtype=object)  # 建立二維陣列儲存格子物件
         self.time = 0  # 初始化時間屬性
         
         # 設定字體大小與視窗大小
         self.root = tk.Tk()
         self.root.title("踩地雷!")
         self.font_size = 12
-        if Xrange < 10 and Yrange < 10:
+        if x_range < 10 and y_range < 10:
             self.root.geometry("700x700")
             self.font_size = 24
-        elif 10 <= Xrange < 17 and 10 <= Yrange < 30:
+        elif 10 <= x_range < 17 and 10 <= y_range < 30:
             self.root.geometry("1000x700")
             self.font_size = 18
         else:
@@ -190,8 +191,8 @@ class Minesweeper:
         # 創建格子按鈕並設置到界面
         self.panel = tk.Frame(self.root)
         self.panel.grid(row=0, column=0)
-        for i in range(Xrange):
-            for j in range(Yrange): 
+        for i in range(x_range):
+            for j in range(y_range): 
                 self.lands[i][j] = Land(self, i, j, self.font_size)
         self.timer_label = tk.Label(self.root, text="時間: ")
         self.timer_label.grid(row=0, column=1)
@@ -213,8 +214,8 @@ class Minesweeper:
     def start(self, x, y): # 傳入第一個點擊的格子的座標，確保第一次點擊的格子不是地雷
         for _ in range(self.minesNumber):
             while True:
-                randomX = random.randint(0, self.Xrange - 1)
-                randomY = random.randint(0, self.Yrange - 1)
+                randomX = random.randint(0, self.x_range - 1)
+                randomY = random.randint(0, self.y_range - 1)
                 if not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
                     continue
                 break # True代表裝地雷成功，跳出迴圈
@@ -222,32 +223,31 @@ class Minesweeper:
         if self.lands[x][y].isMine:  # 如果第一次點擊的格子是地雷，則補裝一個雷
             self.lands[x][y].isMine = False  # 確保第一次點擊的格子不是地雷  
             while True:
-                randomX = random.randint(0, self.Xrange - 1)
-                randomY = random.randint(0, self.Yrange - 1) 
+                randomX = random.randint(0, self.x_range - 1)
+                randomY = random.randint(0, self.y_range - 1) 
                 # 確保不會裝在第一次點擊的格子上
                 if (randomX == x and randomY == y) or not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
                     continue
                 
                 break # True代表裝地雷成功，跳出迴圈
         
-        for i in range(self.Xrange):
-            for j in range(self.Yrange):
+        for i in range(self.x_range):
+            for j in range(self.y_range):
                 self.lands[i][j].setDisplay() # 設定格子的顯示文字
 
     def gameover(self):
         self.gameFinished = True
-        self.canClick = False  # 禁止點擊格子
         messagebox.showinfo("遊戲結束!", f"你踩到了地雷，遊戲結束！\n共耗時{self.time}秒")
-        for i in range(self.Xrange):
-            for j in range(self.Yrange):
+        for i in range(self.x_range):
+            for j in range(self.y_range):
                 t = self.lands[i][j].endState() # 設定格子的顏色
         self.ask_restart()  # 新增這行
 
     def win(self):
         self.gameFinished = True
         messagebox.showinfo("遊戲成功!", f"恭喜你找出所有安全區塊！\n你成功了！\n共耗時{self.time}秒")
-        for i in range(self.Xrange):
-            for j in range(self.Yrange):
+        for i in range(self.x_range):
+            for j in range(self.y_range):
                 self.lands[i][j].endState() # 設定格子的顏色
         self.ask_restart()  # 新增這行
     
