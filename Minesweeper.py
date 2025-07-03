@@ -2,41 +2,42 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 import numpy as np
+from sys import exit
 
 
-TILE_BG = "white"
-TILE_FG = "black"
+TILE_BG = "pink"  # 按鈕背景色
+TILE_FG = "white"  # 按鈕文字顏色
 
-class Tile(tk.Button):
-    # 定義類別屬性
-    canClick = True
-    isFirstClick = True
-
-    def __init__(self, master, x, y, font_size=12):
-        super().__init__(master, width=2, height=1, font=("Arial", font_size), bg=TILE_BG, fg=TILE_FG, state="normal")
+class Land(tk.Button):
+    def __init__(self, game, x, y, font_size=12):
+        super().__init__(game.panel, width=2, height=1, font=("Arial", font_size), bg=TILE_BG, fg=TILE_FG, state="normal")
+        self.game = game
         self.x = x
         self.y = y
-        self.isMines = False
+        self.isMine = False
         self.isClicked = False
-        self.flag = False
+        self.isFlagged = False
         self.display = ""
-        self.config(command=self.clickTile)
-        self.bind("<Button-3>", self.flagTile)  # 綁定右鍵點擊事件
+        self.config(command=self.clickLand)
+        self.bind("<Button-3>", self.flagLand)  # 綁定右鍵點擊事件
         self.grid(row=y, column=x) # 將按鈕放置在界面
 
     def setMines(self):
-        if self.isMines:
+        if self.isMine:
             return False
         else:
-            self.isMines = True
+            self.isMine = True
             return True
 
     def setDisplay(self):
-        if self.isMines:
-            symbol = "💣"
+        if self.isMine:
+            self.display = "💣"
         else:
-            symbol = str(self.countAdjacentMines())
-        self.display = symbol if symbol != "0" else " " # 若symbol為0，則顯示空格
+            if (symbol := self.countAdjacentMines()) == 0: 
+                # 不能寫`if symbol := self.countAdjacentMines() == 0:`不然symbol會是bool
+                self.display = " " # 若symbol為0，則顯示空格
+            else:
+                self.display = str(symbol)
 
     def countAdjacentMines(self):
         count = 0
@@ -47,97 +48,101 @@ class Tile(tk.Button):
         return count
 
     def isMineAt(self, x, y):
-        if 0 <= x < Minesweeper.Xrange and 0 <= y < Minesweeper.Yrange:
-            return Minesweeper.tiles[x][y].isMines
+        if 0 <= x < self.game.Xrange and 0 <= y < self.game.Yrange:
+            return self.game.lands[x][y].isMine
         return False
 
-    def clickTile(self):
-        if not self.isClicked and not self.flag:
-            print(f"點擊了({self.x},{self.y})")
+    def clickLand(self):
+        if not self.game.canClick:
+            #print("遊戲已經結束，不能點擊格子！")
+            return
+        if not self.isClicked and not self.isFlagged: # 還沒被翻開的格子且沒插旗才能點擊
+            #print(f"點擊了({self.x},{self.y})")
             self.isClicked = True
             self.config(bg="gray", fg="white", text=self.display)
-            Minesweeper.remainingTiles -= 1
-            print(f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
-            if self.isMines:
-                Minesweeper.gameover()
-            elif Tile.isFirstClick:
-                Tile.isFirstClick = False
+            self.game.remainingLands -= 1
+            #print(f"剩餘需翻開的格子數為 {self.game.remainingLands}")
+            if self.isMine:
+                self.game.gameover()
+            elif self.game.isFirstClick:
+                self.game.start(self.x, self.y)  # 開始遊戲，裝地雷
+                self.game.isFirstClick = False
+                self.config(bg="gray", fg="white", text=self.display)
                 self.firstClick(self.x, self.y)
             elif self.display == " ":
                 self.autoClick(self.x, self.y)
             else:
-                print("點到數字格")
+                #print("點到數字格")
                 pass
-            if Minesweeper.remainingTiles == 0:
-                Minesweeper.win()
+            if self.game.remainingLands == 0:
+                self.game.win()
         elif self.isClicked:
             if self.display == " ": return
-            self.autoclick_tile_with_no_flags()
-        elif self.flag:
-            print("該格已經被插旗了！")
+            self.autoclick_land_with_no_flags()
+        elif self.isFlagged:
+            #print("該格已經被插旗了！")
             pass
 
     # 處理右鍵點擊事件
-    def flagTile(self, event):
+    def flagLand(self, event):
         # 在這裡處理右鍵點擊事件，插旗的操作
         if not(self.isClicked): # 如果還沒被翻開的格子才能插旗
-            if not(self.flag): # 若沒插旗
+            if not(self.isFlagged): # 若沒插旗
                 self.config(text="🚩")# 插旗🚩
-                print("插旗")
-                self.flag = True
+                #print("插旗")
+                self.isFlagged = True
             else:
                 self.config(text="")# 取消插旗
-                print("取消插旗")
-                self.flag = False
+                #print("取消插旗")
+                self.isFlagged = False
         else:
-            print("該格已經被翻開了！")
+            #print("該格已經被翻開了！")
             pass
 
     def autoClick(self, x, y):
-        print("自動翻開周圍的格子")
+        #print("自動翻開周圍的格子")
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
-                if not (i == x and j == y) and 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
-                    Minesweeper.tiles[i][j].autoClickTile()
+                if not (i == x and j == y) and 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                    self.game.lands[i][j].autoClickLand()
 
-    def autoClickTile(self):
+    def autoClickLand(self):
         if not self.isClicked:
-            self.flag = False
-            print(f"點擊了({self.x},{self.y})")
+            self.isFlagged = False
+            #print(f"點擊了({self.x},{self.y})")
             self.isClicked = True
             self.config(bg="gray", fg="white", text=self.display)
-            Minesweeper.remainingTiles -= 1
-            print(f"剩餘需翻開的格子數為 {Minesweeper.remainingTiles}")
+            self.game.remainingLands -= 1
+            #print(f"剩餘需翻開的格子數為 {self.game.remainingLands}")
             if self.display == " ":
                 self.autoClick(self.x, self.y)
-            if Minesweeper.remainingTiles == 0:
-                Minesweeper.win()
+            if self.game.remainingLands == 0:
+                self.game.win()
 
     # 自動點擊周圍沒插旗的地
-    def autoclick_tile_with_no_flags(s):
-        num_of_tiles_with_flags = 0
-        for i in range(s.x - 1, s.x + 2):
-            for j in range(s.y - 1, s.y + 2):
-                if 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
-                    if Minesweeper.tiles[i][j].flag: num_of_tiles_with_flags += 1
+    def autoclick_land_with_no_flags(self):
+        num_of_lands_with_flags = 0
+        for i in range(self.x - 1, self.x + 2):
+            for j in range(self.y - 1, self.y + 2):
+                if 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                    if self.game.lands[i][j].isFlagged: num_of_lands_with_flags += 1
         
         # 周圍插旗的地不能自己的數字少，不然就return不自動點擊，算是保護玩家
-        if num_of_tiles_with_flags < int(s.display): return
-        for i in range(s.x - 1, s.x + 2):
-            for j in range(s.y - 1, s.y + 2):
-                if 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange:
-                    if not Minesweeper.tiles[i][j].isClicked and not Minesweeper.tiles[i][j].flag:
-                        Minesweeper.tiles[i][j].clickTile()
+        if num_of_lands_with_flags < int(self.display): return
+        for i in range(self.x - 1, self.x + 2):
+            for j in range(self.y - 1, self.y + 2):
+                if 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange:
+                    if not self.game.lands[i][j].isClicked and not self.game.lands[i][j].isFlagged:
+                        self.game.lands[i][j].clickLand()
     
     def endState(self):
-        print(f"({self.x},{self.y}) 遊戲結束")
-        Tile.canClick = False
+        #print(f"({self.x},{self.y}) 遊戲結束")
         if not self.isClicked:
-            if self.flag and self.isMines:
+            if self.isFlagged and self.isMine:
                 self.config(bg="green", text="🚩")
-            elif self.flag and not self.isMines:
+            elif self.isFlagged and not self.isMine:
                 self.config(bg="orange", text=self.display)
-            elif not self.flag and self.isMines:
+            elif not self.isFlagged and self.isMine:
                 self.config(bg="red", text="💣")
             else:
                 self.config(bg="blue", text=self.display)
@@ -146,25 +151,27 @@ class Tile(tk.Button):
             self.config(fg="white")
 
     def firstClick(self, x, y):
-        print(f"第一次點擊的格子({self.x},{self.y})")
+        #print(f"第一次點擊的格子({self.x},{self.y})")
         for i in range(x - 1, x + 2):
             for j in range(y - 1, y + 2):
-                print( i, j)
-                if not (i == self.x and j == self.y) and 0 <= i < Minesweeper.Xrange and 0 <= j < Minesweeper.Yrange and\
-                        Minesweeper.tiles[i][j].display == " ": # 點擊周圍的空格
-                    Minesweeper.tiles[i][j].autoClickTile()
+                #print( i, j)
+                if not (i == self.x and j == self.y) and 0 <= i < self.game.Xrange and 0 <= j < self.game.Yrange and\
+                        self.game.lands[i][j].display == " ": # 點擊周圍的空格
+                    self.game.lands[i][j].autoClickLand()
 
 
 class Minesweeper:
     def __init__(self, Xrange, Yrange, minesNumber):
         setting_window.destroy()  # 關閉開始視窗
-        Minesweeper.gameFinished = False
-        Minesweeper.Xrange = Xrange
-        Minesweeper.Yrange = Yrange
-        Minesweeper.minesNumber = minesNumber
-        Minesweeper.remainingTiles = Xrange * Yrange - minesNumber
-        Minesweeper.tiles = np.empty((Xrange, Yrange), dtype=object)  # 建立二維陣列儲存格子物件
-        Minesweeper.time = 0  # 初始化時間屬性
+        self.gameFinished = False
+        self.Xrange = Xrange
+        self.Yrange = Yrange
+        self.minesNumber = minesNumber
+        self.canClick = True
+        self.isFirstClick = True
+        self.remainingLands = Xrange * Yrange - minesNumber
+        self.lands = np.empty((Xrange, Yrange), dtype=object)  # 建立二維陣列儲存格子物件
+        self.time = 0  # 初始化時間屬性
         
         # 設定字體大小與視窗大小
         self.root = tk.Tk()
@@ -184,9 +191,8 @@ class Minesweeper:
         self.panel = tk.Frame(self.root)
         self.panel.grid(row=0, column=0)
         for i in range(Xrange):
-            for j in range(Yrange):
-                tile = Tile(self.panel, i, j, self.font_size)
-                Minesweeper.tiles[i][j] = tile
+            for j in range(Yrange): 
+                self.lands[i][j] = Land(self, i, j, self.font_size)
         self.timer_label = tk.Label(self.root, text="時間: ")
         self.timer_label.grid(row=0, column=1)
         self.timer_var = tk.StringVar()
@@ -195,47 +201,63 @@ class Minesweeper:
         self.timer.grid(row=0, column=2)
 
         # 開始遊戲
-        self.start()
         self.root.after(1000, self.updateTimer)  # 每秒更新一次計時器
         self.root.mainloop()
 
     def updateTimer(self):
-        if not Minesweeper.gameFinished:  # 如果遊戲尚未結束
-            Minesweeper.time += 1  # 更新時間
-            self.timer_var.set(f"{Minesweeper.time}秒")  # 更新顯示的時間
+        if not self.gameFinished:  # 如果遊戲尚未結束
+            self.time += 1  # 更新時間
+            self.timer_var.set(f"{self.time}秒")  # 更新顯示的時間
             self.root.after(1000, self.updateTimer)  # 每秒更新一次計時器
 
-
-
-    def start(self):
-        for _ in range(Minesweeper.minesNumber):
+    def start(self, x, y): # 傳入第一個點擊的格子的座標，確保第一次點擊的格子不是地雷
+        for _ in range(self.minesNumber):
             while True:
-                randomX = random.randint(0, Minesweeper.Xrange - 1)
-                randomY = random.randint(0, Minesweeper.Yrange - 1)
-                if not Minesweeper.tiles[randomX][randomY].setMines():
+                randomX = random.randint(0, self.Xrange - 1)
+                randomY = random.randint(0, self.Yrange - 1)
+                if not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
                     continue
-                break
+                break # True代表裝地雷成功，跳出迴圈
+        
+        if self.lands[x][y].isMine:  # 如果第一次點擊的格子是地雷，則補裝一個雷
+            self.lands[x][y].isMine = False  # 確保第一次點擊的格子不是地雷  
+            while True:
+                randomX = random.randint(0, self.Xrange - 1)
+                randomY = random.randint(0, self.Yrange - 1) 
+                # 確保不會裝在第一次點擊的格子上
+                if (randomX == x and randomY == y) or not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
+                    continue
+                
+                break # True代表裝地雷成功，跳出迴圈
+        
+        for i in range(self.Xrange):
+            for j in range(self.Yrange):
+                self.lands[i][j].setDisplay() # 設定格子的顯示文字
 
-        for i in range(Minesweeper.Xrange):
-            for j in range(Minesweeper.Yrange):
-                Minesweeper.tiles[i][j].setDisplay() # 設定格子的顯示文字
+    def gameover(self):
+        self.gameFinished = True
+        self.canClick = False  # 禁止點擊格子
+        messagebox.showinfo("遊戲結束!", f"你踩到了地雷，遊戲結束！\n共耗時{self.time}秒")
+        for i in range(self.Xrange):
+            for j in range(self.Yrange):
+                t = self.lands[i][j].endState() # 設定格子的顏色
+        self.ask_restart()  # 新增這行
 
-    @staticmethod
-    def gameover():
-        Minesweeper.gameFinished = True
-        messagebox.showinfo("遊戲結束!", f"你踩到了地雷，遊戲結束！\n共耗時{Minesweeper.time}秒")
-        for i in range(Minesweeper.Xrange):
-            for j in range(Minesweeper.Yrange):
-                t = Minesweeper.tiles[i][j]
-                t.endState() # 設定格子的顏色
-
-    @staticmethod
-    def win():
-        Minesweeper.gameFinished = True
-        messagebox.showinfo("遊戲成功!", f"恭喜你找出所有安全區塊！\n你成功了！\n共耗時{Minesweeper.time}秒")
-        for i in range(Minesweeper.Xrange):
-            for j in range(Minesweeper.Yrange):
-                Minesweeper.tiles[i][j].endState() # 設定格子的顏色
+    def win(self):
+        self.gameFinished = True
+        messagebox.showinfo("遊戲成功!", f"恭喜你找出所有安全區塊！\n你成功了！\n共耗時{self.time}秒")
+        for i in range(self.Xrange):
+            for j in range(self.Yrange):
+                self.lands[i][j].endState() # 設定格子的顏色
+        self.ask_restart()  # 新增這行
+    
+    def ask_restart(self):
+        answer = messagebox.askyesno("再玩一次", "要再玩一次嗎？")
+        self.root.destroy()
+        if answer:
+            main()
+        else:
+            exit(0)
                 
 
 
