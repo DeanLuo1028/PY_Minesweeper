@@ -332,8 +332,9 @@ def custom():
     def start(x, y, mines, times_of_can_back):
         x, y, mines = x.strip(), y.strip(), mines.strip()
         times_of_can_back = times_of_can_back.strip()
+        if times_of_can_back == "": times_of_can_back = "0"  # 如果沒有輸入可回到上一步的次數，則預設為0
         if (not x.isdigit()) or (not y.isdigit()) or (not mines.isdigit()) or (not times_of_can_back.isdigit()):
-            messagebox.showerror("輸入錯誤!", "請輸入正確的遊戲大小、地雷數及可回到上一個狀態的次數")
+            messagebox.showerror("輸入錯誤!", "請輸入正確的遊戲大小、地雷數及可回到上一步的次數")
             x_entry.delete(0, tk.END)
             y_entry.delete(0, tk.END)
             mines_entry.delete(0, tk.END)
@@ -355,11 +356,11 @@ def custom():
             mines_entry.delete(0, tk.END)
             return
         elif times_of_can_back < 0:
-            messagebox.showerror("可回到上一個狀態的次數錯誤!", "可回到上一個狀態的次數不能小於0")
+            messagebox.showerror("可回到上一步的次數錯誤!", "可回到上一步的次數不能小於0")
             times_of_can_back_entry.delete(0, tk.END)
             return
-        root.destroy() # 關閉開始畫面，這行超重要！因為沒有它，計時器就會壞掉
-        Minesweeper(x, y, mines)
+        #root.destroy() # 關閉開始畫面，這行超重要！因為沒有它，計時器就會壞掉
+        Minesweeper(x, y, mines, times_of_can_back)
         
     root = tk.Tk()
     root.title("自定義踩地雷")
@@ -378,7 +379,7 @@ def custom():
     text_mines_label.grid(row=3, column=0)
     mines_entry = tk.Entry(root)
     mines_entry.grid(row=3, column=1)
-    times_of_can_back_label = tk.Label(root, text="回到上一個狀態的次數(0表示不能):")
+    times_of_can_back_label = tk.Label(root, text="可回到上一步的次數:")
     times_of_can_back_label.grid(row=4, column=0)
     times_of_can_back_entry = tk.Entry(root)
     times_of_can_back_entry.grid(row=4, column=1)
@@ -395,11 +396,11 @@ def game_setting():
     setting_window.geometry("300x150")
     text_label = tk.Label(setting_window, text="請選擇遊戲模式:")
     text_label.pack()
-    beginner_button = tk.Button(setting_window, text="初級(8x8)", command=lambda: Minesweeper(8, 8, 10, 2))
+    beginner_button = tk.Button(setting_window, text="初級(8x8)", command=lambda: Minesweeper(8, 8, 10, 3))
     beginner_button.pack()
-    intermediate_button = tk.Button(setting_window, text="中級(16x16)", command=lambda: Minesweeper(16, 16, 40, 1))
+    intermediate_button = tk.Button(setting_window, text="中級(16x16)", command=lambda: Minesweeper(16, 16, 40, 2))
     intermediate_button.pack()
-    expert_button = tk.Button(setting_window, text="專家(24x20)", command=lambda: Minesweeper(24, 20, 80))
+    expert_button = tk.Button(setting_window, text="專家(24x20)", command=lambda: Minesweeper(24, 20, 80, 1))
     expert_button.pack()
     custom_button = tk.Button(setting_window, text="自定義", command=custom)
     custom_button.pack()
