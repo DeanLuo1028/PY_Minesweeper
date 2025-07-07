@@ -13,24 +13,9 @@
 * 🛡️ 第一次點擊保證不會是地雷
 * 🔙 踩到地雷時有回到上一步的機會
 
-## 📦 安裝方式
+## 🚀 遊玩方式
 
-請確保你已安裝 Python（建議使用 Python 3.6+）。
-
-1. 下載此程式的 `.py` 檔案。
-2. 安裝 `numpy`：
-
-   ```bash
-   pip install numpy
-   ```
-
-## 🚀 執行方式
-
-打開終端機或命令提示字元，執行以下命令來啟動遊戲（程式名稱為 Minesweeper.py）：
-
-```bash
-python Minesweeper.py
-```
+左鍵雙擊打開output資料夾中的Minesweeper.exe檔案
 
 ⚠️ 遊戲開始時會出現一個設定視窗，讓你選擇地圖大小與地雷數。
 

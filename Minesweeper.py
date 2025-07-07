@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 from tkinter import ttk
-from numpy import empty
 from sys import exit
 # -*- coding: utf-8 -*-
 
@@ -61,7 +60,7 @@ class Land(tk.Button):
             self.game.remainingLands -= 1
             #print(f"剩餘需翻開的格子數為 {self.game.remainingLands}")
             if self.game.isFirstClick:
-                self.game.laying_mines(self.x, self.y)  # 開始遊戲，裝地雷 # TODO
+                self.game.laying_mines(self.x, self.y)  # 開始遊戲，裝地雷
                 self.game.isFirstClick = False
                 self.config(bg="gray", fg="white", text=self.display)
                 self.firstClick(self.x, self.y)
@@ -169,7 +168,7 @@ class Minesweeper:
         self.remainingLands = x_range * y_range - mines_number
         self.times_of_can_back = times_of_can_back # 用來計算可以回到上一個狀態的次數
         self.land_bg , self.land_fg = "white", "black"  # 按鈕背景色與文字顏色
-        self.lands = empty((x_range, y_range), dtype=object)  # 建立二維陣列儲存格子物件
+        self.lands = [[None for _ in range(y_range)] for _ in range(x_range)] # 建立二維陣列儲存格子物件
         self.time = 0  # 初始化時間屬性
         
         # 設定字體大小與視窗大小
@@ -179,9 +178,9 @@ class Minesweeper:
         if x_range < 10 and y_range < 10:
             self.root.geometry("700x700")
             self.font_size = 24
-        elif 10 <= x_range < 17 and 10 <= y_range < 30:
+        elif 10 <= x_range < 17 and 10 <= y_range < 20:
             self.root.geometry("1000x700")
-            self.font_size = 18
+            self.font_size = 16
         else:
             self.root.state('zoomed')
             self.font_size = 12
@@ -214,21 +213,11 @@ class Minesweeper:
     def laying_mines(self, x, y): # 傳入第一個點擊的格子的座標，確保第一次點擊的格子不是地雷
         for _ in range(self.mines_number):
             while True:
-                randomX = random.randint(0, self.x_range - 1)
-                randomY = random.randint(0, self.y_range - 1)
-                if not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
+                random_x = random.randint(0, self.x_range - 1)
+                random_y = random.randint(0, self.y_range - 1)
+                # 確保不會裝在第一次點擊的格子上             # False代表已經有地雷了，裝地雷失敗
+                if (random_x == x and random_y == y) or not self.lands[random_x][random_y].setMines():
                     continue
-                break # True代表裝地雷成功，跳出迴圈
-        
-        if self.lands[x][y].isMine:  # 如果第一次點擊的格子是地雷，則補裝一個雷
-            self.lands[x][y].isMine = False  # 確保第一次點擊的格子不是地雷  
-            while True:
-                randomX = random.randint(0, self.x_range - 1)
-                randomY = random.randint(0, self.y_range - 1) 
-                # 確保不會裝在第一次點擊的格子上
-                if (randomX == x and randomY == y) or not self.lands[randomX][randomY].setMines(): # False代表已經有地雷了，裝地雷失敗
-                    continue
-                
                 break # True代表裝地雷成功，跳出迴圈
         
         for i in range(self.x_range):
@@ -396,11 +385,11 @@ def game_setting():
     setting_window.geometry("300x150")
     text_label = tk.Label(setting_window, text="請選擇遊戲模式:")
     text_label.pack()
-    beginner_button = tk.Button(setting_window, text="初級(8x8)", command=lambda: Minesweeper(8, 8, 10, 3))
+    beginner_button = tk.Button(setting_window, text="初級(9x9, 10地雷)", command=lambda: Minesweeper(9, 9, 10, 3))
     beginner_button.pack()
-    intermediate_button = tk.Button(setting_window, text="中級(16x16)", command=lambda: Minesweeper(16, 16, 40, 2))
+    intermediate_button = tk.Button(setting_window, text="中級(16x16, 40地雷)", command=lambda: Minesweeper(16, 16, 40, 2))
     intermediate_button.pack()
-    expert_button = tk.Button(setting_window, text="專家(24x20)", command=lambda: Minesweeper(24, 20, 80, 1))
+    expert_button = tk.Button(setting_window, text="進階(30x16, 99地雷)", command=lambda: Minesweeper(30, 16, 99, 1))
     expert_button.pack()
     custom_button = tk.Button(setting_window, text="自定義", command=custom)
     custom_button.pack()
