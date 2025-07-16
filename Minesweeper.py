@@ -54,7 +54,7 @@ class Land(tk.Button):
             if self.isMine:
                 self.game.click_on_mine(self.x, self.y)  # 點到地雷了
                 return
-            print(f"點擊了({self.x},{self.y})")
+            #print(f"點擊了({self.x},{self.y})")
             self.isClicked = True
             self.config(bg="gray", fg="white", text=self.display)
             self.game.remainingLands -= 1
@@ -138,9 +138,9 @@ class Land(tk.Button):
             if self.isFlagged and self.isMine:
                 self.config(bg="green", text="🚩")
             elif self.isFlagged and not self.isMine:
-                self.config(bg="orange", text=self.display)
+                self.config(bg="red", text=self.display)
             elif not self.isFlagged and self.isMine:
-                self.config(bg="red", text="💣")
+                self.config(bg="orange", text="💣")
             else:
                 self.config(bg="blue", text=self.display)
             self.config(fg="gray")
@@ -176,10 +176,13 @@ class Minesweeper:
         self.root.title("踩地雷!")
         self.font_size = 12
         if x_range < 10 and y_range < 10:
-            self.root.geometry("700x700")
+            self.root.geometry("500x700")
             self.font_size = 24
-        elif 10 <= x_range < 17 and 10 <= y_range < 20:
+        elif 10 <= x_range < 17 and 10 <= y_range <= 16:
             self.root.geometry("1000x700")
+            self.font_size = 16
+        elif 17 <= x_range <= 30 and 16 <= y_range < 24:
+            self.root.state('zoomed')
             self.font_size = 16
         else:
             self.root.state('zoomed')
@@ -187,23 +190,36 @@ class Minesweeper:
 
         # 創建格子按鈕並設置到界面
         self.panel = tk.Frame(self.root)
-        self.panel.grid(row=0, column=0)
+        self.panel.grid(row=0, column=0, rowspan=3)
         for i in range(x_range):
             for j in range(y_range): 
                 self.lands[i][j] = Land(self, i, j, self.font_size)
+        self.pause_btn = tk.Button(self.root, text="暫停", command=self.pause, bg="gray", fg="white")
+        self.pause_btn.grid(row=0, column=1)
         self.timer_label = tk.Label(self.root, text="時間: ")
-        self.timer_label.grid(row=0, column=1)
+        self.timer_label.grid(row=1, column=1)
         self.timer_var = tk.StringVar()
         self.timer_var.set("0秒")  # 初始化為 0 秒
         self.timer = tk.Label(self.root, textvariable=self.timer_var, bg="pink", fg="black")
-        self.timer.grid(row=0, column=2)
+        self.timer.grid(row=1, column=2)
 
         self.color_picker = tk.Button(self.root, text="設定格子背景色與文字顏色", command=self.setLandBgFg)
-        self.color_picker.grid(row=2, column=0)
+        self.color_picker.grid(row=3, column=0)
         # 開始遊戲
         self.root.after(1000, self.updateTimer)  # 每秒更新一次計時器
         self.root.mainloop()
 
+    def pause(self): # TODO
+        self.gameFinished = True
+        result = messagebox.askyesno("暫停遊戲", "遊戲已暫停，是否繼續遊戲？\n選擇「是」繼續遊戲，選擇「否」結束遊戲。")
+        if result: # 如果選擇繼續遊戲
+            self.gameFinished = False  # 恢復遊戲狀態
+            self.updateTimer()  # 繼續計時器
+            return  # 不做任何操作，繼續遊戲
+        else:  # 如果選擇結束遊戲
+            self.gameover()  # 結束遊戲
+        
+    
     def updateTimer(self):
         if not self.gameFinished:  # 如果遊戲尚未結束
             self.time += 1  # 更新時間
@@ -368,7 +384,7 @@ def custom():
     text_mines_label.grid(row=3, column=0)
     mines_entry = tk.Entry(root)
     mines_entry.grid(row=3, column=1)
-    times_of_can_back_label = tk.Label(root, text="可回到上一步的次數:")
+    times_of_can_back_label = tk.Label(root, text="可復活次數:")
     times_of_can_back_label.grid(row=4, column=0)
     times_of_can_back_entry = tk.Entry(root)
     times_of_can_back_entry.grid(row=4, column=1)
