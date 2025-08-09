@@ -8,7 +8,6 @@ from sys import exit
 
 class Minesweeper:
     def __init__(self, x_range, y_range, mines_number, times_of_can_back=0):
-        #setting_window.destroy()  # 關閉開始視窗
         self.gameFinished = False
         self.x_range = x_range
         self.y_range = y_range
@@ -40,7 +39,7 @@ class Minesweeper:
         # 創建格子按鈕並設置到界面
         self.panel = tk.Frame(self.root)
         self.panel.grid(row=0, column=0, rowspan=3)
-        from Land import Land  # 從Land.py導入Land類別
+        from .Land import Land  # 從Land.py導入Land類別
         for i in range(x_range):
             for j in range(y_range): 
                 self.lands[i][j] = Land(self, i, j, self.font_size)
@@ -180,7 +179,7 @@ class Minesweeper:
         answer = messagebox.askyesno("再玩一次", "要再玩一次嗎？")
         self.root.destroy()
         if answer:
-            from GameSetting import game_setting
+            from .GameSetting import game_setting
             game_setting()
         else:
             exit(0)            
