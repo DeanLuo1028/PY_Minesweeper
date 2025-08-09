@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# 類型提示文件
+*.pyi
+
 # VS Code 設定
 .vscode/
 
