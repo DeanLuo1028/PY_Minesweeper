@@ -17,7 +17,6 @@
 
 [按此處](https://drive.google.com/file/d/15SAld7U04xjGXv13l273t-wreV-X1xxu/view?usp=sharing)下載，直接打開就能玩
 
-
 ⚠️ 遊戲開始時會出現一個設定視窗，讓你選擇地圖大小與地雷數。
 
 ## 🎯 遊戲規則
