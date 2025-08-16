@@ -6,6 +6,9 @@ __pycache__/
 # 類型提示文件
 *.pyi
 
+# 圖片資料夾
+images/
+
 # auto-py-to-exe output
 output/
 

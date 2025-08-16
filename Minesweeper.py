@@ -18,7 +18,7 @@ class Minesweeper:
         self.land_bg , self.land_fg = "white", "black"  # 按鈕背景色與文字顏色
         self.lands = [[None for _ in range(y_range)] for _ in range(x_range)] # 建立二維陣列儲存格子物件
         self.time = 0  # 初始化時間屬性
-        
+
         # 設定字體大小與視窗大小
         self.root = tk.Tk()
         self.root.title("踩地雷!")
@@ -41,7 +41,7 @@ class Minesweeper:
         self.panel.grid(row=0, column=0, rowspan=3)
         from Land import Land  # 從Land.py導入Land類別
         for i in range(x_range):
-            for j in range(y_range): 
+            for j in range(y_range):
                 self.lands[i][j] = Land(self, i, j, self.font_size)
         self.pause_btn = tk.Button(self.root, text="暫停", command=self.pause, bg="gray", fg="white")
         self.pause_btn.grid(row=0, column=1)
@@ -67,8 +67,8 @@ class Minesweeper:
             return  # 不做任何操作，繼續遊戲
         else:  # 如果選擇結束遊戲
             self.gameover()  # 結束遊戲
-        
-    
+
+
     def updateTimer(self):
         if not self.gameFinished:  # 如果遊戲尚未結束
             self.time += 1  # 更新時間
@@ -84,7 +84,7 @@ class Minesweeper:
                 if (random_x == x and random_y == y) or not self.lands[random_x][random_y].setMines():
                     continue
                 break # True代表裝地雷成功，跳出迴圈
-        
+
         for i in range(self.x_range):
             for j in range(self.y_range):
                 self.lands[i][j].setDisplay() # 設定格子的顯示文字
@@ -93,7 +93,7 @@ class Minesweeper:
         if 0 <= x < self.x_range and 0 <= y < self.y_range:
             return self.lands[x][y].isMine
         return False
-    
+
     def setLandBgFg(self):
         root = tk.Tk()
         root.geometry("300x150")
@@ -114,7 +114,7 @@ class Minesweeper:
                     if not self.lands[i][j].isClicked:  # 如果格子已經被點擊過，則不改變背景色
                         self.lands[i][j].config(bg=self.land_bg)  # 更新格子的背景顏色
         bg_sure_btn = tk.Button(root, text="確定", command=lambda: setLandBg(bg_box.get()))
-        
+
         fg_var = tk.StringVar()
         fg_var.set("black")  # 預設為黑色
         fg_label = tk.Label(root, text="格子文字顏色:")
@@ -130,7 +130,7 @@ class Minesweeper:
                     if not self.lands[i][j].isClicked:  # 如果格子已經被點擊過，則不改變文字顏色
                         self.lands[i][j].config(fg=self.land_fg)  # 更新格子的文字顏色
         fg_sure_btn = tk.Button(root, text="確定", command=lambda: setLandFg(fg_box.get()))
-        
+
         bg_label.grid(row=0, column=0)
         bg_color_label.grid(row=0, column=1)
         bg_box.grid(row=0, column=2)
@@ -139,7 +139,7 @@ class Minesweeper:
         fg_color_label.grid(row=1, column=1)
         fg_box.grid(row=1, column=2)
         fg_sure_btn.grid(row=1, column=3)
-    
+
     def click_on_mine(self, x, y):
         if self.times_of_can_back > 0:
             root = tk.Tk()
@@ -158,7 +158,7 @@ class Minesweeper:
             root.mainloop()
         else:
             self.gameover()
-    
+
     def gameover(self):
         self.gameFinished = True
         messagebox.showinfo("遊戲結束!", f"你踩到了地雷，遊戲結束！\n共耗時{self.time}秒")
@@ -174,7 +174,7 @@ class Minesweeper:
             for j in range(self.y_range):
                 self.lands[i][j].endState() # 設定格子的顏色
         self.ask_restart()
-    
+
     def ask_restart(self):
         answer = messagebox.askyesno("再玩一次", "要再玩一次嗎？")
         self.root.destroy()
@@ -182,4 +182,4 @@ class Minesweeper:
             from GameSetting import game_setting
             game_setting()
         else:
-            exit(0)            
+            exit(0)

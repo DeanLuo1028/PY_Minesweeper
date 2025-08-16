@@ -1,0 +1,27 @@
+# 表示這是專案的最上層設定
+root = true
+
+# 所有檔案的預設設定
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Python 檔案的特殊規則
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 79  # 建議的行長（PEP 8 建議 79）
+trim_trailing_whitespace = true
+
+# Markdown 檔案（不要刪除行尾空白，因為 Markdown 可能用它換行）
+[*.md]
+trim_trailing_whitespace = false
+
+# JSON、YAML 檔案（常用於設定）
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
