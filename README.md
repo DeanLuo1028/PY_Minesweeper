@@ -8,14 +8,26 @@
 * 🚩 右鍵插旗／取消插旗
 * 🤖 自動展開空白區域
 * ⏱️ 計時器顯示遊玩時間
-* 🎨 根據地圖大小自動調整字體與視窗大小
+* 🎨 可以自定義格子的顏色和文字顏色
 * ✅ 支援勝利與失敗提示
 * 🛡️ 第一次點擊保證不會是地雷
-* 🔙 踩到地雷時有回到上一步的機會
+* 🔙 有回到上一步的按鈕
 
 ## 🚀 遊玩方式
 
+普通方式：
 [按此處](https://drive.google.com/file/d/15SAld7U04xjGXv13l273t-wreV-X1xxu/view?usp=sharing)下載，直接打開就能玩
+
+若您的電腦有Python和Git：
+請創建或打開你想放此遊戲的資料夾
+在此開啟終端並依次輸入：
+
+```sh
+> git clone https://github.com/DeanLuo1028/PY_Minesweeper.git
+> python
+>>> import Minesweeper
+>>> Minesweeper.game_start()
+```
 
 ⚠️ 遊戲開始時會出現一個設定視窗，讓你選擇地圖大小與地雷數。
 
@@ -31,7 +43,7 @@
 
 * `Land.py`：代表每個格子的行為與狀態，包含點擊、插旗、計算鄰近地雷等功能。
 * `Minesweeper.py` ：整體遊戲邏輯與 UI 管理，包括生成地圖、放置地雷、控制勝負與時間等。
-* `Game_setting`：負責遊戲開始設定，讓玩家選擇遊戲大小或客製化。
+* `GameStart.py`：負責遊戲開始設定，讓玩家選擇遊戲大小或客製化。
 
 ## 📝 以後將實作的功能
 

@@ -134,8 +134,7 @@ class Minesweeper:
             fg_color_label.config(fg=fg_var.get())  # 更新顏色標籤的顏色
             for i in range(self.x_range):
                 for j in range(self.y_range):
-                    if not self.lands[i][j].isClicked:  # 如果格子已經被點擊過，則不改變文字顏色
-                        self.lands[i][j].config(fg=self.land_fg)  # 更新格子的文字顏色
+                    self.lands[i][j].config(fg=self.land_fg)  # 更新格子的文字顏色
         fg_sure_btn = tk.Button(root, text="確定", command=lambda: set_land_fg(fg_box.get()))
 
         bg_label.grid(row=0, column=0)
