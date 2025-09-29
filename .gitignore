@@ -12,8 +12,9 @@ images/
 # auto-py-to-exe output
 output/
 
-# VS Code 設定
+# Visual Studio, VS Code 設定
 .vscode/
+.vs/
 
 # Virtual environment
 venv/

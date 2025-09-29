@@ -1,11 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
-from Minesweeper import Minesweeper
 
 def start(x, y, mines, times_of_can_back):
     setting_window.destroy()  # 關閉開始視窗
+    from .Minesweeper import Minesweeper
     Minesweeper(x, y, mines, times_of_can_back)
-    
+
 
 def custom():
     def check_parameters(x, y, mines, times_of_can_back):
@@ -40,7 +40,7 @@ def custom():
             return
         root.destroy()  # 關閉開始畫面，這行超重要！因為沒有它，計時器就會壞掉
         start(x, y, mines, times_of_can_back)
-        
+
     root = tk.Tk()
     root.title("自定義踩地雷")
     root.geometry("300x150")
@@ -68,7 +68,7 @@ def custom():
     root.mainloop()
 
 
-def game_setting():
+def game_start():
     global setting_window
     setting_window = tk.Tk()
     setting_window.title("歡迎來到踩地雷!")
@@ -84,7 +84,7 @@ def game_setting():
     custom_button = tk.Button(setting_window, text="自定義", command=custom)
     custom_button.pack()
     setting_window.mainloop()
-    
+
 
 if __name__ == "__main__":
-    game_setting()  # 啟動遊戲設定界面
+    game_start()  # 啟動遊戲設定界面

@@ -1,3 +1,3 @@
 from .Land import Land
 from .Minesweeper import Minesweeper
-from .GameSetting import game_setting
+from .GameStart import game_start
