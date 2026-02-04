@@ -7,7 +7,7 @@ __pycache__/
 *.pyi
 
 # 圖片資料夾
-images/
+#images/
 
 # auto-py-to-exe output
 output/
