@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 類型提示文件
+*.pyi
+
+# 圖片資料夾
+images/
+
+# auto-py-to-exe output
+output/
+
+# Visual Studio, VS Code 設定
+vscode/
+vs/
+
+# Virtual environment
+venv/
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# 臨時檔案
+temp.*
