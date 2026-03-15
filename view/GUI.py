@@ -3,11 +3,18 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
+FONT = "微軟正黑體 10"
 class View:
+    """遊戲畫面 (View) - 負責建立與更新 Tkinter GUI。"""
+
     def __init__(self, x_range: int, y_range: int):
+        """初始化 GUI 結構資料，不會建立視窗。
+
+        參數為格子尺寸，用於預先建立按鈕矩陣。
+        """
         self.x_range = x_range
         self.y_range = y_range
-        self.buttons: list[list[tk.Button]] = [[None for _ in range(y_range)] for _ in range(x_range)]
+        self.buttons: list[list[tk.Button|None]] = [[None for _ in range(y_range)] for _ in range(x_range)]
         self.tile_bg = "white" # 按鈕背景顏色
         self.tile_fg = "black" # 按鈕文字顏色
         self.running: bool = False
@@ -20,7 +27,7 @@ class View:
         self.root.title("踩地雷!")
 
         if self.x_range < 10 and self.y_range < 10:
-            self.root.geometry("500x700")
+            self.root.geometry("700x700")
             self.font_size = 24
         elif 10 <= self.x_range < 17 and 10 <= self.y_range <= 16:
             self.root.geometry("1000x700")
@@ -33,10 +40,11 @@ class View:
             self.font_size = 12
 
         # 創建格子按鈕並設置到界面
+        # x 表示橫向格子數 (欄數)，y 表示直向格子數 (列數)
         self.panel = tk.Frame(self.root)
         self.panel.grid(row=0, column=0, rowspan=3)
-        for i in range(self.x_range):
-            for j in range(self.y_range):
+        for j in range(self.y_range):
+            for i in range(self.x_range):
                 btn = tk.Button(
                     self.panel,
                     text="",
@@ -45,33 +53,37 @@ class View:
                     font=("Arial", self.font_size),
                     command=lambda i=i, j=j: self.controller.click_tile(i, j),
                 )
-                btn.grid(row=i, column=j)
+                btn.grid(row=j, column=i)
                 btn.bind("<Button-3>", lambda event, i=i, j=j: self.controller.flag_tile(i, j))
                 self.buttons[i][j] = btn
 
-        self.pause_btn = tk.Button(self.root, text="暫停", command=self.controller.pause, bg="gray", fg="white")
+        self.pause_btn = tk.Button(self.root, text="暫停", command=self.controller.pause, bg="gray", fg="white", font=FONT)
         self.pause_btn.grid(row=0, column=1, padx=10, pady=2)
 
         self.timer_var = tk.StringVar()
         self.timer_var.set("時間: 0秒")
-        self.timer = tk.Label(self.root, textvariable=self.timer_var, bg="pink", fg="black")
+        self.timer = tk.Label(self.root, textvariable=self.timer_var, bg="pink", fg="black", font=FONT)
         self.timer.grid(row=1, column=1, padx=10, pady=2)
 
         # 顯示剩餘地雷與可復活次數（可由 Controller 更新）
         self.status_var = tk.StringVar()
         self.status_var.set("地雷剩餘: 0    復活: 0")
-        self.status_label = tk.Label(self.root, textvariable=self.status_var, bg="lightgray", fg="black")
-        self.status_label.grid(row=2, column=0, padx=10, pady=2, sticky="w")
+        self.status_label = tk.Label(self.root, textvariable=self.status_var, bg="lightgray", fg="black", font=FONT)
+        self.status_label.grid(row=3, column=0, padx=10, pady=2, sticky="w")
 
-        self.color_picker = tk.Button(self.root, text="設定格子背景色與文字顏色", command=self.set_tile_bgfg)
-        self.color_picker.grid(row=3, column=0, padx=10, pady=2)
+        self.color_picker = tk.Button(self.root, text="設定格子背景色與文字顏色", command=self.set_tile_bgfg, font=FONT)
+        self.color_picker.grid(row=3, column=1, padx=10, pady=2)
 
-        self.back_btn = tk.Button(self.root, text="回到上一步", command=self.controller.back, bg="gray", fg="white")
+        self.back_btn = tk.Button(self.root, text="回到上一步", command=self.controller.back, bg="gray", fg="white", font=FONT)
         self.back_btn.grid(row=2, column=1, padx=10, pady=2)
 
         self.running = True
         self.update_timer_loop()
-        self.root.mainloop()
+        try:
+            self.root.mainloop()
+        except KeyboardInterrupt:
+            # 使用 Ctrl+C 退出時，不顯示 traceback
+            self.root.destroy()
 
     def update_tile(self, x: int, y: int, text: str, bg: str = "", fg: str = ""):
         """更新指定格子的按鈕顯示內容
@@ -84,6 +96,7 @@ class View:
             fg (str, optional): 按鈕文字顏色. Defaults to "".
         """
         button = self.buttons[x][y]
+        assert button is not None
         button.config(text=text)
         if bg:
             button.config(bg=bg)
@@ -92,6 +105,10 @@ class View:
     
     def gameover(self):
         self.running = False
+    
+    def destroy_window(self):
+        """關閉視窗"""
+        self.root.destroy()
 
     def update_timer(self, seconds: int):
         """更新計時器顯示"""
@@ -137,7 +154,9 @@ class View:
                     status = self.controller.tile_status(i, j)
                     if status and getattr(status, "name", None) == "OPENED":
                         continue
-                    self.buttons[i][j].config(bg=self.tile_bg, fg=self.tile_fg)
+                    button = self.buttons[i][j]
+                    assert button is not None
+                    button.config(bg=self.tile_bg, fg=self.tile_fg)
             dialog.destroy()
 
         tk.Button(dialog, text="確定", command=apply_colors).grid(row=2, column=0, columnspan=2, pady=10)

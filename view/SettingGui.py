@@ -40,7 +40,14 @@ class SettingGui:
         self.custom_button.pack(fill="x", padx=20, pady=2)
 
     def run(self):
-        self.setting_window.mainloop()
+        """啟動設定視窗的事件迴圈。
+
+        會捕捉 KeyboardInterrupt (Ctrl+C) 以避免當使用者從命令列中強制中斷時出現 traceback。
+        """
+        try:
+            self.setting_window.mainloop()
+        except KeyboardInterrupt:
+            self.setting_window.destroy()
 
     def custom(self):
         custom_window = tk.Toplevel(self.setting_window)
@@ -90,3 +97,6 @@ class SettingGui:
         widget = self.widgets.get(entry)
         if widget:
             widget.delete(0, tk.END)
+    
+    def destroy(self):
+        self.setting_window.destroy()

@@ -12,7 +12,7 @@ class SettingController:
     def start(self, x, y, mines, resurrections):
         # 關閉初始設定畫面，並啟動遊戲
         if hasattr(self, "view") and self.view and hasattr(self.view, "setting_window"):
-            self.view.setting_window.destroy()
+            self.view.destroy()
         self.model.start(x, y, mines, resurrections)
 
     def check_parameters(self, x, y, mines, resurrections):

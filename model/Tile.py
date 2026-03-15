@@ -28,13 +28,13 @@ class Tile:
 
 
     @property
-    def is_mine(self):
+    def is_mine(self) -> bool:
         """是否是地雷"""
         return self.num == 9
     
-    def is_(self, x: int, y: int):
+    def is_(self, x: int, y: int) -> bool:
         return self.x == x and self.y == y
-    def is_not_(self, x: int, y: int):
+    def is_not_(self, x: int, y: int) -> bool:
         return self.x != x or self.y != y
 
     def set_mine(self) -> bool:
@@ -48,12 +48,12 @@ class Tile:
             self.num = 9
             return True
 
-    def set_num(self):
+    def set_num(self) -> None:
         """設定此格子的數字"""
         if not self.is_mine:
             self.num = self.count_adjacent_mines()
 
-    def count_adjacent_mines(self):
+    def count_adjacent_mines(self) -> int:
         """計算周圍的地雷數量"""
         count = 0
         for i in range(self.x - 1, self.x + 2):
@@ -74,7 +74,7 @@ class Tile:
         self.status = Status.OPENED
         return self.is_mine
 
-    def toggle_flag(self):
+    def toggle_flag(self) -> None:
         """切換旗幟狀態"""
         if self.status == Status.NO_FLAG:
             self.status = Status.FLAG
@@ -83,4 +83,4 @@ class Tile:
 
 
 
-NullTile = Tile(None, -1, -1)
+NULLTILE = Tile(None, -1, -1)
