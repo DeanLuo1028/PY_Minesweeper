@@ -1,7 +1,5 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyi
 
 # VS Code 設定
 .vscode/
@@ -10,9 +8,7 @@ __pycache__/
 venv/
 .env/
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# macOS / Windows
-.DS_Store
-Thumbs.db
+# 臨時
+temp/
+# 圖片
+images/
